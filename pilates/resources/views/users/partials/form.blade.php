@@ -1,10 +1,14 @@
 @php $isEdit = isset($user) && $user->exists; @endphp
 
-<form id="user-form" method="POST" enctype="multipart/form-data"
-      action="{{ $isEdit ? route('users.update', $user) : route('users.store') }}">
+<form id="user-form" method="POST" enctype="multipart/form-data" autocomplete="off"
+    action="{{ $isEdit ? route('users.update', $user) : route('users.store') }}">
 
     @csrf
     @if($isEdit) @method('PUT') @endif
+
+    <!-- Hidden dummy fields to discourage browser autofill (some browsers ignore autocomplete="off") -->
+    <input type="text" name="__fake_username" id="__fake_username" autocomplete="off" style="position: absolute; left: -9999px; top: -9999px;" />
+    <input type="password" name="__fake_password" id="__fake_password" autocomplete="off" style="position: absolute; left: -9999px; top: -9999px;" />
 
     <div class="space-y-6">
 
@@ -85,7 +89,7 @@
                 <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
                     Email <span class="text-red-500 normal-case">*</span>
                 </label>
-                <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}"
+                  <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}" autocomplete="off"
                        placeholder="contoh@email.com"
                        class="w-full px-3.5 py-2.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 dark:focus:border-indigo-500 transition-all" required>
                 @error('email') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
@@ -112,7 +116,7 @@
                     @endif
                 </label>
                 <div class="relative">
-                    <input type="password" name="password" id="password-field"
+                          <input type="password" name="password" id="password-field" autocomplete="new-password"
                            placeholder="{{ $isEdit ? '••••••••' : 'Min. 8 karakter' }}"
                            class="w-full px-3.5 py-2.5 pr-10 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 dark:focus:border-indigo-500 transition-all" {{ !$isEdit ? 'required' : '' }}>
                     <button type="button" data-toggle-pwd="password-field" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300">

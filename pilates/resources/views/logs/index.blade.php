@@ -121,7 +121,7 @@
 
                 <div>
                     <p class="text-xs text-zinc-500">Ketik <strong>KONFIRMASI</strong> untuk melanjutkan:</p>
-                    <input type="text" name="confirm_text" id="logs-confirm-input" class="w-full px-3 py-2 border rounded mt-1" placeholder="Ketik KONFIRMASI" required>
+                    <input type="text" autocomplete="off" name="confirm_text" id="logs-confirm-input" class="w-full px-3 py-2 border rounded mt-1" placeholder="Ketik KONFIRMASI" required>
                 </div>
 
                 <div class="flex items-center justify-end gap-2">
