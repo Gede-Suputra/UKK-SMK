@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuditLogController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,6 +21,9 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
     // User CRUD
     Route::resource('users', UserController::class)->names('users');
+    // Audit logs (below users in menu)
+    Route::get('logs', [AuditLogController::class, 'index'])->name('logs.index');
+    Route::post('logs/delete', [AuditLogController::class, 'destroyBulk'])->name('logs.destroyBulk');
 });
 
 require __DIR__.'/auth.php';

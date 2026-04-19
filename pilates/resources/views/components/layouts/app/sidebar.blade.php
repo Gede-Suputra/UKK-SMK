@@ -17,6 +17,7 @@
                 </flux:navlist.group>
                 <flux:navlist.group heading="Administrator" class="grid">
                     <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>Users</flux:navlist.item>
+                    <flux:navlist.item icon="clipboard-document-list" :href="route('logs.index')" :current="request()->routeIs('logs.*')" wire:navigate>Audit Logs</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
@@ -131,5 +132,6 @@
         {{ $slot }}
 
         @fluxScripts
+        @stack('scripts')
     </body>
 </html>
