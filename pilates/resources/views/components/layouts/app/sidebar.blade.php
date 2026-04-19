@@ -15,7 +15,10 @@
                 <flux:navlist.group heading="Master" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Dashboard</flux:navlist.item>
                 </flux:navlist.group>
-                <flux:navlist.group heading="Administrator" class="grid">
+                <flux:navlist.group heading="Petugas" class="grid">
+                    <flux:navlist.item icon="tag" :href="route('kategori-alat.index')" :current="request()->routeIs('kategori-alat.*')" wire:navigate>Kategori</flux:navlist.item>
+                </flux:navlist.group>
+                <flux:navlist.group heading="Admin" class="grid">
                     <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>Users</flux:navlist.item>
                     <flux:navlist.item icon="clipboard-document-list" :href="route('logs.index')" :current="request()->routeIs('logs.*')" wire:navigate>Audit Logs</flux:navlist.item>
                 </flux:navlist.group>

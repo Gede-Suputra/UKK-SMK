@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\KategoriAlatController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,6 +22,10 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
     // User CRUD
     Route::resource('users', UserController::class)->names('users');
+    // Kategori CRUD for Petugas
+    Route::resource('kategori-alat', KategoriAlatController::class)
+        ->names('kategori-alat')
+        ->parameters(['kategori-alat' => 'kategori']);
     // Audit logs (below users in menu)
     Route::get('logs', [AuditLogController::class, 'index'])->name('logs.index');
     Route::post('logs/delete', [AuditLogController::class, 'destroyBulk'])->name('logs.destroyBulk');

@@ -30,6 +30,7 @@
 
 @once
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 (function(){
     function showModal(el){
@@ -86,18 +87,25 @@
         }
     });
 
-    // Form Submit (hanya untuk modal edit/create)
+    // Form Submit (hanya untuk modal edit/create) + prevent double-submits
     document.addEventListener('submit', function(e){
         const form = e.target.closest('form');
         if (!form) return;
+
         const modal = form.closest('[data-modal]');
+
+        // If the form is outside modal and has data-confirm, let the global confirm handler handle it
         if (!modal) return;
 
         e.preventDefault();
+
+        // prevent double submit
+        if (form.dataset.submitting) return;
+        form.dataset.submitting = '1';
+
         const fd = new FormData(form);
         const action = form.action;
         const methodInput = form.querySelector('input[name="_method"]');
-        // If _method is present (PUT/PATCH/DELETE), send as POST so files are handled correctly
         const fetchMethod = methodInput ? 'POST' : (form.method || 'POST');
         const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
@@ -113,10 +121,38 @@
                 hideModal(modal);
                 location.reload();
             } else {
+                form.dataset.submitting = '';
                 alert(data?.message || 'Terjadi kesalahan');
             }
         })
-        .catch(() => alert('Gagal menyimpan'));
+        .catch(() => {
+            form.dataset.submitting = '';
+            alert('Gagal menyimpan');
+        });
+    });
+
+    // Global delegated confirmation for forms with data-confirm (works for delete forms in index views)
+    document.addEventListener('submit', function(e){
+        const form = e.target.closest('form[data-confirm]');
+        if (!form) return;
+        // if the form is inside a modal, the modal handler already handles it
+        if (form.closest('[data-modal]')) return;
+        e.preventDefault();
+        const msg = form.getAttribute('data-confirm') || 'Yakin ingin melanjutkan?';
+        if (typeof Swal === 'undefined') {
+            if (!confirm(msg)) return; form.submit(); return;
+        }
+        Swal.fire({
+            title: msg,
+            text: 'Tindakan ini tidak dapat dibatalkan.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Lanjutkan',
+            cancelButtonText: 'Batal',
+            borderRadius: '12px',
+        }).then((result) => { if (result.isConfirmed) form.submit(); });
     });
 
     // Delegated file input preview for profile photo
