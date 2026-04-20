@@ -13,6 +13,10 @@ class AlatController extends Controller
     {
         $q = $request->query('q');
         $query = Alat::with('kategori');
+        $kategoriId = $request->query('kategori');
+        if ($kategoriId) {
+            $query->where('id_kategori', $kategoriId);
+        }
         if ($q) {
             $query->where(function($sub) use ($q) {
                 $sub->where('id', $q)
@@ -22,7 +26,9 @@ class AlatController extends Controller
 
         $alats = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
 
-        return view('alats.index', compact('alats', 'q'));
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
+
+        return view('alats.index', compact('alats', 'q', 'kategoris'));
     }
 
     public function create(Request $request)

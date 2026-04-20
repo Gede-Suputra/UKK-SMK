@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\KategoriAlatController;
 use App\Http\Controllers\AlatController;
+use App\Http\Controllers\PinjamanController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,6 +30,11 @@ Route::middleware(['auth'])->group(function () {
         ->parameters(['kategori-alat' => 'kategori']);
     // Alat CRUD (Petugas)
     Route::resource('alats', AlatController::class)->names('alats');
+    // Pinjaman CRUD (Petugas)
+    Route::resource('pinjaman', PinjamanController::class)->names('pinjaman');
+    // Pinjaman helpers: pending list and change status
+    Route::get('pinjaman/pending-list', [PinjamanController::class, 'pendingList'])->name('pinjaman.pendingList');
+    Route::post('pinjaman/{pinjaman}/status', [PinjamanController::class, 'changeStatus'])->name('pinjaman.changeStatus');
     // Audit logs (below users in menu)
     Route::get('logs', [AuditLogController::class, 'index'])->name('logs.index');
     Route::post('logs/delete', [AuditLogController::class, 'destroyBulk'])->name('logs.destroyBulk');

@@ -30,7 +30,7 @@
                 <p class="text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Foto Alat</p>
                 <p class="text-xs text-zinc-400 mb-3">Format JPG, PNG. Maks 3MB.</p>
                 <div class="flex items-center gap-2">
-                    <label for="profile_photo_path" class="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-medium transition-colors">Pilih / Ambil Foto</label>
+                    <label for="profile_photo_path" class="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-medium transition-colors">Pilih Foto</label>
                     <button type="button" id="take-photo-btn" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs">Ambil Foto</button>
                 </div>
                 <input type="file" name="profile_photo_path" id="profile_photo_path" accept="image/*" capture="environment" class="hidden">
