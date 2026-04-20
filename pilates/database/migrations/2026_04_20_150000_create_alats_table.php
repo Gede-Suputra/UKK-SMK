@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('alats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_kategori')->nullable()->constrained('kategori_alat')->nullOnDelete();
+            $table->foreignId('id_kategori')->constrained('kategori_alat')->restrictOnDelete();
             $table->string('nama_alat');
             $table->string('deskripsi')->nullable();
             $table->integer('jumlah_total')->default(0);
