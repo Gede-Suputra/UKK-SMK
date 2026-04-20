@@ -17,6 +17,7 @@
                 </flux:navlist.group>
                 <flux:navlist.group heading="Petugas" class="grid">
                     <flux:navlist.item icon="tag" :href="route('kategori-alat.index')" :current="request()->routeIs('kategori-alat.*')" wire:navigate>Kategori</flux:navlist.item>
+                    <flux:navlist.item icon="cube" :href="route('alats.index')" :current="request()->routeIs('alats.*')" wire:navigate>Alat</flux:navlist.item>
                 </flux:navlist.group>
                 <flux:navlist.group heading="Admin" class="grid">
                     <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>Users</flux:navlist.item>

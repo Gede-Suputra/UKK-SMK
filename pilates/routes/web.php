@@ -5,6 +5,7 @@ use Livewire\Volt\Volt;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\KategoriAlatController;
+use App\Http\Controllers\AlatController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,6 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kategori-alat', KategoriAlatController::class)
         ->names('kategori-alat')
         ->parameters(['kategori-alat' => 'kategori']);
+    // Alat CRUD (Petugas)
+    Route::resource('alats', AlatController::class)->names('alats');
     // Audit logs (below users in menu)
     Route::get('logs', [AuditLogController::class, 'index'])->name('logs.index');
     Route::post('logs/delete', [AuditLogController::class, 'destroyBulk'])->name('logs.destroyBulk');

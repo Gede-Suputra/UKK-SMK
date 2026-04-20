@@ -99,6 +99,16 @@
 
         e.preventDefault();
 
+        // Client-side validation for Alat form
+        if (form.id === 'alat-form') {
+            const total = parseInt(form.querySelector('input[name="jumlah_total"]')?.value || '0', 10);
+            const dipinjam = parseInt(form.querySelector('input[name="jumlah_dipinjam"]')?.value || '0', 10);
+            const rusak = parseInt(form.querySelector('input[name="jumlah_rusak"]')?.value || '0', 10);
+            if (isNaN(total) || total < 0) { alert('Jumlah total tidak boleh negatif'); form.dataset.submitting = ''; return; }
+            if (dipinjam < 0 || dipinjam > total) { alert('Jumlah dipinjam harus antara 0 dan jumlah total'); form.dataset.submitting = ''; return; }
+            if (rusak < 0 || rusak > total) { alert('Jumlah rusak harus antara 0 dan jumlah total'); form.dataset.submitting = ''; return; }
+        }
+
         // prevent double submit
         if (form.dataset.submitting) return;
         form.dataset.submitting = '1';
