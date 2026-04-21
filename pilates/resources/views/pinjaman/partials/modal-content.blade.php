@@ -49,8 +49,25 @@
     </div>
 
     <div class="px-6 pb-6 flex items-center justify-end gap-2 border-t border-zinc-100 dark:border-zinc-800 pt-4">
-        <a href="#" data-modal-open data-modal-target="#pinjaman-modal" data-url="{{ route('pinjaman.edit', $pinjaman) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 text-sm font-medium transition-colors">
-            Edit
-        </a>
+        @php $role = auth()->user()->role ?? null; @endphp
+        @if($pinjaman->status === 'pending' && in_array($role, ['admin','petugas']))
+            <form method="POST" action="{{ route('pinjaman.changeStatus', $pinjaman) }}" class="inline-block">
+                @csrf
+                <input type="hidden" name="status" value="disetujui">
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium">Setujui</button>
+            </form>
+        @endif
+
+        @if(in_array($pinjaman->status, ['disetujui','pending']))
+            <form method="POST" action="{{ route('pinjaman.changeStatus', $pinjaman) }}" class="inline-block">
+                @csrf
+                <input type="hidden" name="status" value="dipinjam">
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-600 text-white text-sm font-medium">Ambil Barang</button>
+            </form>
+        @endif
+
+        <a href="#" data-modal-open data-modal-target="#pinjaman-modal" data-url="{{ route('pinjaman.edit', $pinjaman) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 text-sm font-medium transition-colors">Edit</a>
+
+        <a href="#" data-modal-open data-modal-target="#pinjaman-modal" data-url="{{ route('pinjaman.returnForm', $pinjaman) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium">Pengembalian</a>
     </div>
 </div>

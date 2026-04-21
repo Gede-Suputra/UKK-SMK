@@ -9,14 +9,14 @@ return new class extends Migration {
     {
         Schema::create('pinjaman', function (Blueprint $table) {
             $table->id();
-            $table->string('id_peminjam')->constrained('users')->restrictOnDelete();
+            $table->foreignId('id_peminjam')->constrained('users')->restrictOnDelete();
             $table->date('tanggal_pinjam');
             $table->date('tanggal_kembali_rencana');
-            $table->string('disetujui_oleh')->constrained('users')->restrictOnDelete();
-            $table->date('tanggal_selesai');
+            $table->foreignId('disetujui_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $table->date('tanggal_selesai')->nullable();
             $table->bigInteger('total_denda')->default(0);
             $table->text('pesan')->nullable();
-            $table->string('diselesaikan_oleh')->constrained('users')->restrictOnDelete();
+            $table->foreignId('diselesaikan_oleh')->nullable()->constrained('users')->nullOnDelete();
             $table->string('status')->default('pending');
             $table->timestamps();
 

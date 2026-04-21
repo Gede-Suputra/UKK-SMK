@@ -12,7 +12,9 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
+use App\Http\Controllers\DashboardController;
+
+Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -30,11 +32,16 @@ Route::middleware(['auth'])->group(function () {
         ->parameters(['kategori-alat' => 'kategori']);
     // Alat CRUD (Petugas)
     Route::resource('alats', AlatController::class)->names('alats');
+    // Pinjaman helpers: pending list, pending count and change status (define before resource to avoid route-model binding conflict)
+    Route::get('pinjaman/pending-list', [PinjamanController::class, 'pendingList'])->name('pinjaman.pendingList');
+    Route::get('pinjaman/pending-count', [PinjamanController::class, 'pendingCount'])->name('pinjaman.pendingCount');
+    Route::post('pinjaman/{pinjaman}/status', [PinjamanController::class, 'changeStatus'])->name('pinjaman.changeStatus');
+    Route::get('pinjaman/{pinjaman}/return-form', [PinjamanController::class, 'returnForm'])->name('pinjaman.returnForm');
+    Route::post('pinjaman/{pinjaman}/pengembalian', [PinjamanController::class, 'storeReturn'])->name('pinjaman.storeReturn');
+    // User-specific peminjaman page
+    Route::get('user-pinjam', [App\Http\Controllers\UserPinjamController::class, 'index'])->name('user-pinjam');
     // Pinjaman CRUD (Petugas)
     Route::resource('pinjaman', PinjamanController::class)->names('pinjaman');
-    // Pinjaman helpers: pending list and change status
-    Route::get('pinjaman/pending-list', [PinjamanController::class, 'pendingList'])->name('pinjaman.pendingList');
-    Route::post('pinjaman/{pinjaman}/status', [PinjamanController::class, 'changeStatus'])->name('pinjaman.changeStatus');
     // Audit logs (below users in menu)
     Route::get('logs', [AuditLogController::class, 'index'])->name('logs.index');
     Route::post('logs/delete', [AuditLogController::class, 'destroyBulk'])->name('logs.destroyBulk');

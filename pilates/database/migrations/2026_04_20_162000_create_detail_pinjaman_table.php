@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('id_pinjaman')->constrained('pinjaman')->cascadeOnDelete();
             $table->foreignId('id_alat')->constrained('alats')->cascadeOnDelete();
             $table->integer('jumlah')->default(1);
-            $table->enum('status', ['pending','active','returned','cancelled'])->default('pending');
+            $table->enum('status', ['dipinjam','kembali_sebagian','selesai'])->default('dipinjam');
             $table->timestamps();
 
             $table->index('id_pinjaman');

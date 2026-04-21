@@ -12,26 +12,24 @@
                    class="px-4 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 focus:outline-none" />
             <select name="status" onchange="this.form.submit()" class="px-4 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 focus:outline-none">
                 <option value="">Semua Status</option>
-                @foreach(['pending','approved','active','returned','cancelled'] as $s)
+                @foreach(['pending','disetujui','dipinjam','selesai'] as $s)
                     <option value="{{ $s }}" {{ (isset($status) && $status == $s) ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                 @endforeach
             </select>
             <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-indigo-600 text-white">Cari</button>
         </form>
 
-        <div class="w-full md:w-auto flex justify-start md:justify-end items-center gap-3">
-            @if(!empty($pendingCount) && $pendingCount > 0)
-                <button id="pending-open" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg bg-yellow-400 hover:bg-yellow-500 text-zinc-900 transition-colors shadow-sm">
-                    Belum dilihat: {{ $pendingCount }}
+            <div class="w-full md:w-auto flex justify-start md:justify-end items-center gap-3">
+                <button id="pending-badge" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg bg-yellow-400 hover:bg-yellow-500 text-zinc-900 transition-colors shadow-sm" style="display: {{ (!empty($pendingCount) && $pendingCount > 0) ? 'inline-flex' : 'none' }}">
+                    Belum dilihat: <span id="pending-count">{{ $pendingCount ?? 0 }}</span>
                 </button>
-            @endif
-            <div>
-            <a href="#" data-modal-open data-modal-target="#pinjaman-modal" data-url="{{ route('pinjaman.create') }}"
-               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white transition-colors shadow-sm">
-                Tambah Peminjaman
-            </a>
+                <div>
+                    <a href="#" data-modal-open data-modal-target="#pinjaman-modal" data-url="{{ route('pinjaman.create') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white transition-colors shadow-sm">
+                        Tambah Peminjaman
+                    </a>
+                </div>
             </div>
-        </div>
     </div>
 
     @if(session('success'))
@@ -73,11 +71,22 @@
                         </td>
                         <td class="px-4 py-3.5 text-[13px] text-zinc-500">{{ $p->tanggal_pinjam }}</td>
                         <td class="px-4 py-3.5 text-[13px] text-zinc-400">
-                            <form method="POST" action="{{ route('pinjaman.changeStatus', $p) }}" class="inline-block status-form">
+                            @php
+                                $status = $p->status ?? 'pending';
+                                $badgeClasses = [
+                                    'pending' => 'bg-amber-100 text-amber-800',
+                                    'disetujui' => 'bg-green-100 text-green-800',
+                                    'dipinjam' => 'bg-sky-100 text-sky-800',
+                                    'selesai' => 'bg-gray-100 text-gray-800',
+                                ][$status] ?? 'bg-zinc-100 text-zinc-800';
+                            @endphp
+                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold {{ $badgeClasses }}">{{ ucfirst($status) }}</span>
+
+                            <form method="POST" action="{{ route('pinjaman.changeStatus', $p) }}" class="inline-block status-form ml-3">
                                 @csrf
                                 <select name="status" class="px-3 py-1 rounded-lg text-sm" onchange="if(confirm('Ubah status?')) this.form.submit();">
-                                    @foreach(['pending','approved','active','returned','cancelled'] as $ss)
-                                        <option value="{{ $ss }}" {{ $p->status === $ss ? 'selected' : '' }}>{{ ucfirst($ss) }}</option>
+                                    @foreach(['pending','disetujui','dipinjam','selesai'] as $ss)
+                                        <option value="{{ $ss }}" {{ $p->status === $ss ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$ss)) }}</option>
                                     @endforeach
                                 </select>
                             </form>
@@ -138,21 +147,26 @@
         }
     });
 
-    // Open pending modal and load list
-    document.getElementById('pending-open')?.addEventListener('click', function(){
-        const modalEl = document.getElementById('pending-modal');
-        if (!modalEl) return;
-        const url = '{{ route('pinjaman.pendingList') }}';
-        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-            .then(r => r.text())
-            .then(html => {
-                const body = modalEl.querySelector('.modal-body') || modalEl.querySelector('.p-4') || modalEl;
-                // try to set content inside modal
-                body.innerHTML = html;
-                // open modal via existing data-modal-open mechanism
-                const openBtn = document.createElement('button'); openBtn.setAttribute('data-modal-open',''); openBtn.setAttribute('data-modal-target','#pending-modal'); document.body.appendChild(openBtn); openBtn.click(); openBtn.remove();
-            });
-    });
+    // Poll pending count every 60s and update badge
+    (function pollPending(){
+        const badge = document.getElementById('pending-badge');
+        const countEl = document.getElementById('pending-count');
+        const url = '{{ route('pinjaman.pendingCount') }}';
+
+        function refresh(){
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(data => {
+                    const n = parseInt(data.pending || 0, 10);
+                    if (countEl) countEl.textContent = n;
+                    if (badge) badge.style.display = n > 0 ? 'inline-flex' : 'none';
+                }).catch(()=>{});
+        }
+
+        // initial
+        refresh();
+        setInterval(refresh, 60000);
+    })();
 
     document.addEventListener('submit', function(e) {
         const form = e.target.closest('form[data-confirm]');

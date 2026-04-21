@@ -477,10 +477,10 @@
 
                 <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 relative z-10">
                     @foreach ([
-                        ['01', 'Daftar Akun', 'Buat akun menggunakan NIK dan data diri. Verifikasi dilakukan oleh perangkat desa.', '#3b82f6', 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'],
-                        ['02', 'Pilih Alat', 'Telusuri katalog alat yang tersedia. Filter berdasarkan jenis, kondisi, dan ketersediaan.', '#10b981', 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'],
+                        ['01', 'Membuat Akun', 'Datang ke kantor desa untuk membuat akun menggunakan NIK dan data diri. Verifikasi dilakukan oleh perangkat desa.', '#3b82f6', 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'],
+                        ['02', 'Pilih Alat', 'Login dan telusuri katalog alat yang tersedia. Filter berdasarkan jenis, kondisi, dan ketersediaan.', '#10b981', 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'],
                         ['03', 'Ajukan Pinjam', 'Isi formulir peminjaman: tanggal, durasi, dan tujuan penggunaan. Kirim permohonan.', '#f59e0b', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
-                        ['04', 'Tunggu Approval', 'Perangkat desa memverifikasi dan menyetujui permintaan. Notifikasi dikirim ke akun Anda.', '#8b5cf6', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+                        ['04', 'Tunggu Approval', 'Perangkat desa memverifikasi dan menyetujui permintaan. Pihak desa akan menginformasikan ke anda.', '#8b5cf6', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
                         ['05', 'Ambil & Kembalikan', 'Ambil alat sesuai jadwal, gunakan dengan baik, dan kembalikan tepat waktu.', '#ef4444', 'M5 13l4 4L19 7'],
                     ] as $i => [$num, $title, $desc, $color, $icon])
                     <div class="flex flex-col items-center text-center reveal" style="transition-delay:{{ $i * 0.1 }}s">

@@ -10,6 +10,15 @@ use App\Services\AuditLogService;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (($request->user()->role ?? '') !== 'admin') {
+                abort(403);
+            }
+            return $next($request);
+        });
+    }
     public function index()
     {
         $q = request()->query('q');

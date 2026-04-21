@@ -16,6 +16,7 @@ class DetailPinjaman extends Model
         'id_alat',
         'jumlah',
         'status',
+        
     ];
 
     public function pinjaman()
@@ -26,5 +27,10 @@ class DetailPinjaman extends Model
     public function alat()
     {
         return $this->belongsTo(Alat::class, 'id_alat');
+    }
+
+    public function pengembalians()
+    {
+        return $this->hasMany(DetailPengembalian::class, 'id_detail_pinjaman');
     }
 }

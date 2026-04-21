@@ -9,6 +9,15 @@ use Carbon\Carbon;
 
 class AuditLogController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (($request->user()->role ?? '') !== 'admin') {
+                abort(403);
+            }
+            return $next($request);
+        });
+    }
     public function index(Request $request)
     {
         $q = $request->query('q');

@@ -67,6 +67,8 @@
                     .then(html => {
                         modal.querySelector('[data-modal-body]').innerHTML = html;
                         showModal(modal);
+                        // initialize any detail-row templates / bindings inside modal
+                        try { initModalDetailRows(modal); } catch(e){}
                     })
                     .catch(() => alert('Gagal memuat data'));
             } else {
@@ -182,6 +184,79 @@
         }
     });
 
+    // Delegated preview handler for any input[file] that uses data-preview-target (used by pengembalian form)
+    document.addEventListener('change', function(e){
+        const input = e.target.closest('input[type="file"][data-preview-target]');
+        if (!input) return;
+        const targetSel = input.getAttribute('data-preview-target');
+        if (!targetSel) return;
+        const modal = input.closest('[data-modal]');
+        const preview = modal ? modal.querySelector(targetSel) : document.querySelector(targetSel);
+        if (!preview) return;
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(ev){ preview.innerHTML = `<img src="${ev.target.result}" class="w-full h-full object-cover">`; };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.innerHTML = '';
+        }
+    });
+
+    // Detail-row helpers: initialize and delegated actions for AJAX-inserted modal content
+    function initModalDetailRows(modal) {
+        if (!modal) modal = document;
+        const container = modal.querySelector('#detail-rows');
+        if (!container) return;
+
+        // set available info for each existing row
+        container.querySelectorAll('.detail-row').forEach(function(row){
+            const sel = row.querySelector('.alat-select');
+            const input = row.querySelector('.jumlah-input');
+            const availSpan = row.querySelector('.available-count');
+            const opt = sel?.selectedOptions[0];
+            const available = parseInt(opt?.dataset?.available ?? sel?.dataset?.available ?? 0, 10);
+            if (availSpan) availSpan.textContent = available;
+            if (input) {
+                input.max = available;
+                if (parseInt(input.value,10) > available) input.value = available > 0 ? available : 1;
+            }
+            // ensure select change updates availability
+            sel?.addEventListener('change', function(){
+                const o = sel.selectedOptions[0];
+                const av = parseInt(o?.dataset?.available ?? 0, 10);
+                if (availSpan) availSpan.textContent = av;
+                if (input) { input.max = av; if (parseInt(input.value,10) > av) input.value = av > 0 ? av : 1; }
+            });
+        });
+    }
+
+    // delegated handlers for add-row/remove-row and availability logic (works for modal-injected content)
+    document.addEventListener('click', function(e){
+        const addBtn = e.target.closest && e.target.closest('#add-row');
+        if (addBtn) {
+            const modal = addBtn.closest('[data-modal]') || document;
+            const container = modal.querySelector('#detail-rows');
+            const template = modal.querySelector('#detail-row-template');
+            if (!container || !template) return;
+            e.preventDefault();
+            const idx = container.querySelectorAll('.detail-row').length;
+            let html = template.innerHTML.replace(/__INDEX__/g, idx);
+            const tmp = document.createElement('div'); tmp.innerHTML = html.trim();
+            const row = tmp.firstElementChild;
+            container.appendChild(row);
+            // initialize the row availability
+            try { initModalDetailRows(modal); } catch(e){}
+            return;
+        }
+
+        const removeBtn = e.target.closest && e.target.closest('.remove-row');
+        if (removeBtn) {
+            e.preventDefault();
+            removeBtn.closest('.detail-row')?.remove();
+            return;
+        }
+    });
+
     // Delegated show/hide password toggle for dynamic modal content
     document.addEventListener('click', function(e){
         const btn = e.target.closest('[data-toggle-pwd]');
@@ -254,7 +329,10 @@
         canvas.toBlob(function(blob) {
             if (!blob) return alert('Gagal mengambil foto.');
             const file = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
-            const input = modal.querySelector('input[type="file"][name="profile_photo_path"]');
+            // support multiple photo input names (profile_photo_path for users, foto for pengembalian)
+            const input = modal.querySelector('input[type="file"][name="profile_photo_path"]')
+                || modal.querySelector('input[type="file"][name="foto"]')
+                || modal.querySelector('input[type="file"][data-photo-target]');
             if (input) {
                 const dt = new DataTransfer();
                 dt.items.add(file);

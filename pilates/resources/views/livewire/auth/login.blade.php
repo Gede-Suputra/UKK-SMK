@@ -36,7 +36,18 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        // Redirect based on role: regular 'user' goes to user-pinjam, others to dashboard
+        $default = route('dashboard', absolute: false);
+        try {
+            $current = Auth::user();
+            if ($current && ($current->role ?? 'user') === 'user') {
+                $default = route('user-pinjam', absolute: false);
+            }
+        } catch (\Throwable $e) {
+            // ignore and fallback to dashboard
+        }
+
+        $this->redirectIntended(default: $default, navigate: true);
     }
 
     protected function ensureIsNotRateLimited(): void
@@ -139,7 +150,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                         autofocus
                         autocomplete="email"
                         placeholder="nama@desa.go.id"
-                        class="w-full pl-11 pr-4 py-3 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 dark:focus:border-blue-500 transition-all @error('email') border-red-400 dark:border-red-500 bg-red-50 dark:bg-red-950/20 @enderror"
+                        class="w-full pl-11 pr-4 py-3 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 dark:focus:border-blue-500 transition-all @error('email') dark:border-red-500 bg-red-50 dark:bg-red-950/20 @enderror"
                     >
                 </div>
                 @error('email')
