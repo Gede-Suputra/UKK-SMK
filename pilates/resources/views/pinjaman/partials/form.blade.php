@@ -41,13 +41,17 @@
                 <div>
                     <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">Status</label>
                     <select name="status" 
-                            class="w-full px-3.5 py-2.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400">
+                            class="w-full px-3.5 py-2.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400"
+                            {{ (isset($pinjaman) && $pinjaman->status === 'selesai') ? 'disabled' : '' }}>
                         @foreach(['pending','disetujui','dipinjam','selesai'] as $s)
                             <option value="{{ $s }}" @if(old('status', $pinjaman->status ?? 'pending') == $s) selected @endif>
                                 {{ ucfirst($s) }}
                             </option>
                         @endforeach
                     </select>
+                    @if(isset($pinjaman) && $pinjaman->status === 'selesai')
+                        <p class="text-xs text-zinc-400 mt-1">Status sudah <strong>selesai</strong> — tidak dapat diubah.</p>
+                    @endif
                 </div>
             </div>
         </div>
@@ -57,6 +61,15 @@
             <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">Pesan / Keterangan</label>
             <textarea name="pesan" rows="3" 
                       class="w-full px-3.5 py-2.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30">{{ old('pesan', $pinjaman->pesan ?? '') }}</textarea>
+        </div>
+
+        <!-- Total Denda (editable) -->
+        <div>
+            <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">Total Denda (Rp)</label>
+            <input type="number" name="total_denda" min="0" step="1" 
+                   value="{{ old('total_denda', $pinjaman->total_denda ?? 0) }}"
+                   class="w-full px-3.5 py-2.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+            <p class="text-xs text-zinc-400 mt-1">Anda dapat mengedit total denda secara manual jika diperlukan.</p>
         </div>
 
         <!-- Detail Peminjaman -->
@@ -117,6 +130,17 @@
                     @endforeach
                 @endif
             </div>
+        </div>
+        <!-- Terms / Peraturan (informational) -->
+        <div class="mt-4 p-4 rounded-lg border bg-zinc-50 dark:bg-zinc-900/40">
+            <h4 class="text-sm font-semibold text-zinc-800 dark:text-white mb-2">Peraturan Peminjaman</h4>
+            <ul class="text-xs text-zinc-600 dark:text-zinc-300 space-y-1 mb-2 list-disc list-inside">
+                <li>Kembalikan alat tepat waktu sesuai tanggal rencana.</li>
+                <li>Peminjam bertanggung jawab atas kerusakan atau kehilangan selama masa pinjam.</li>
+                <li>Denda akan dikenakan sesuai kebijakan jika terlambat atau terjadi kerusakan.</li>
+                <li>Peminjaman hanya berlaku untuk pengguna terdaftar dan sesuai ketentuan internal.</li>
+            </ul>
+            <p class="text-xs text-zinc-500">Dengan menggunakan layanan peminjaman ini, Anda menyetujui peraturan di atas.</p>
         </div>
 
         <!-- Action Buttons -->

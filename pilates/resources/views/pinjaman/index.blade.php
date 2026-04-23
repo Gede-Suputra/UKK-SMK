@@ -84,7 +84,7 @@
 
                             <form method="POST" action="{{ route('pinjaman.changeStatus', $p) }}" class="inline-block status-form ml-3">
                                 @csrf
-                                <select name="status" class="px-3 py-1 rounded-lg text-sm" onchange="if(confirm('Ubah status?')) this.form.submit();">
+                                <select name="status" class="px-3 py-1 rounded-lg text-sm" {{ $p->status === 'selesai' ? 'disabled' : '' }} onchange="if(this.disabled) return; if(confirm('Ubah status?')) this.form.submit();">
                                     @foreach(['pending','disetujui','dipinjam','selesai'] as $ss)
                                         <option value="{{ $ss }}" {{ $p->status === $ss ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$ss)) }}</option>
                                     @endforeach
@@ -95,6 +95,7 @@
                             <div class="flex items-center justify-end gap-1.5">
                                 <a href="#" data-modal-open data-modal-target="#pinjaman-modal" data-url="{{ route('pinjaman.show', $p) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-[11.5px] font-medium transition-colors">Detail</a>
                                 <a href="#" data-modal-open data-modal-target="#pinjaman-modal" data-url="{{ route('pinjaman.edit', $p) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11.5px] font-medium transition-colors">Edit</a>
+                                <a href="{{ route('pinjaman.cetak', $p) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[11.5px] font-medium transition-colors">Cetak</a>
                                 <form action="{{ route('pinjaman.destroy', $p) }}" method="POST" class="inline-block" data-confirm="Hapus pinjaman ini?">
                                     @csrf
                                     @method('DELETE')

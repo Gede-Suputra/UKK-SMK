@@ -21,6 +21,8 @@ class StorePinjamanRequest extends FormRequest
             'tanggal_pinjam' => 'required|date',
             'tanggal_kembali_rencana' => 'required|date|after_or_equal:tanggal_pinjam',
             'pesan' => 'nullable|string',
+            'disetujui_oleh' => 'nullable|exists:users,id',
+            'diselesaikan_oleh' => 'nullable|exists:users,id',
             'details' => 'required|array|min:1',
             // support both naming conventions: details.*.alat_id or details.*.id_alat
             'details.*.alat_id' => 'required|exists:alats,id',

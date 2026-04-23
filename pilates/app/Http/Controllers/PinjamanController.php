@@ -54,6 +54,13 @@ class PinjamanController extends Controller
             'status' => 'required|string|in:pending,disetujui,dipinjam,selesai'
         ]);
 
+        // Prevent any status changes when already finished
+        if ($pinjaman->status === 'selesai') {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Pinjaman sudah selesai — status tidak dapat diubah.'], 422);
+            }
+            return redirect()->back()->withErrors(['error' => 'Pinjaman sudah selesai — status tidak dapat diubah.']);
+        }
         $old = $pinjaman->status;
         $new = $data['status'];
         // restrict approval to admin/petugas
@@ -125,7 +132,10 @@ class PinjamanController extends Controller
                 'tanggal_pinjam' => $data['tanggal_pinjam'],
                 'tanggal_kembali_rencana' => $data['tanggal_kembali_rencana'],
                 'pesan' => $data['pesan'] ?? null,
-                'status' => 'pending',
+                'disetujui_oleh' => $data['disetujui_oleh'] ?? null,
+                'diselesaikan_oleh' => $data['diselesaikan_oleh'] ?? null,
+                'tanggal_selesai' => isset($data['diselesaikan_oleh']) ? date('Y-m-d') : null,
+                'status' => $data['status'] ?? 'pending',
                 'total_denda' => 0,
             ]);
 
@@ -167,6 +177,16 @@ class PinjamanController extends Controller
         return view('pinjaman.show', compact('pinjaman'));
     }
 
+    /**
+     * Cetak/print view for a Pinjaman record.
+     * Opens in a new tab for printing.
+     */
+    public function cetak(Pinjaman $pinjaman)
+    {
+        $pinjaman->load('peminjam', 'details.alat');
+        return view('pinjaman.cetak', compact('pinjaman'));
+    }
+
     public function returnForm(Request $request, Pinjaman $pinjaman)
     {
         if ($request->ajax()) {
@@ -178,6 +198,10 @@ class PinjamanController extends Controller
     // Approve pinjaman (role check)
     public function approve(Request $request, Pinjaman $pinjaman)
     {
+        // Do not allow approving a finished pinjaman
+        if ($pinjaman->status === 'selesai') {
+            abort(403, 'Pinjaman sudah selesai — status tidak dapat diubah.');
+        }
         $user = auth()->user();
         if (!in_array($user->role ?? null, ['admin','petugas'])) {
             abort(403);
@@ -191,6 +215,10 @@ class PinjamanController extends Controller
     // Mark items as taken
     public function take(Request $request, Pinjaman $pinjaman)
     {
+        // Do not allow changing to dipinjam if already finished
+        if ($pinjaman->status === 'selesai') {
+            abort(403, 'Pinjaman sudah selesai — status tidak dapat diubah.');
+        }
         if ($pinjaman->status !== 'dipinjam') {
             // increment alat counts and mark details
             foreach ($pinjaman->details as $det) {
@@ -234,6 +262,14 @@ class PinjamanController extends Controller
 
         $details = $data['details'] ?? [];
         unset($data['details']);
+
+        // Prevent changing status on a finished pinjaman
+        if (isset($data['status']) && $pinjaman->status === 'selesai' && $data['status'] !== 'selesai') {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Pinjaman sudah selesai — status tidak dapat diubah.'], 422);
+            }
+            return redirect()->back()->withErrors(['error' => 'Pinjaman sudah selesai — status tidak dapat diubah.']);
+        }
 
         // Server-side availability validation on update: consider existing pinjaman if it was dipinjam
         $wasActive = ($pinjaman->status === 'dipinjam');
@@ -323,6 +359,7 @@ class PinjamanController extends Controller
             'details.*.tanggal_kembali' => 'required|date',
             'details.*.kondisi' => 'required|in:baik,rusak,hilang',
             'details.*.foto' => 'nullable|image|max:2048',
+            'details.*.denda' => 'nullable|numeric|min:0',
             'details.*.pesan' => 'nullable|string',
         ]);
 
@@ -359,6 +396,9 @@ class PinjamanController extends Controller
 
                 $peng = DetailPengembalian::create($pengData);
 
+                // If a manual denda was provided in form, add it
+                $manualDenda = isset($d['denda']) ? intval($d['denda']) : 0;
+
                 // Update alat: decrement jumlah_dipinjam and handle rusak/hilang
                 $alat = Alat::find($detail->id_alat);
                 if ($alat) {
@@ -385,14 +425,39 @@ class PinjamanController extends Controller
                 // compute denda if return date past rencana
                 $rencana = $pinjaman->tanggal_kembali_rencana;
                 $daysLate = (strtotime($tglKembali) - strtotime($rencana)) > 0 ? intval((strtotime($tglKembali) - strtotime($rencana)) / 86400) : 0;
+                $autoDenda = 0;
                 if ($daysLate > 0) {
-                    // denda = hari terlambat × 1000 × jumlah barang
-                    $denda = $daysLate * 1000 * $jumlahKembali;
-                    $totalDenda += $denda;
-                    // update pengembalian record with denda
-                    $peng->denda = $denda;
+                    // denda otomatis = hari terlambat × 1000 × jumlah barang
+                    $autoDenda = $daysLate * 1000 * $jumlahKembali;
+                }
+
+                // total denda for this pengembalian = manual + otomatis
+                $dendaTotalForThis = $manualDenda + $autoDenda;
+                if ($dendaTotalForThis > 0) {
+                    $totalDenda += $dendaTotalForThis;
+                    $peng->denda = $dendaTotalForThis;
                     $peng->save();
                 }
+
+                // Audit log per pengembalian: record who received/processed it
+                try {
+                    AuditLogService::log(
+                        AuditLogService::ACTION_CREATE,
+                        [
+                            'subject_type' => 'detail_pengembalian',
+                            'subject_id' => $peng->id,
+                            'message' => 'Catat pengembalian',
+                            'meta' => [
+                                'peng_id' => $peng->id,
+                                'id_detail_pinjaman' => $detail->id,
+                                'jumlah_kembali' => $jumlahKembali,
+                                'kondisi' => $kondisi,
+                                'denda' => $peng->denda ?? 0,
+                                'diterima_oleh' => auth()->id(),
+                            ],
+                        ]
+                    );
+                } catch (\Throwable $e) {}
             }
 
             // update pinjaman total_denda

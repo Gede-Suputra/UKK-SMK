@@ -19,6 +19,11 @@ class DashboardController extends Controller
             abort(403, 'Akses ditolak. Halaman ini tidak tersedia untuk role user.');
         }
 
+        // If the logged-in user is a 'petugas', redirect them directly to the pinjaman list
+        if (($user->role ?? '') === 'petugas') {
+            return redirect()->route('pinjaman.index');
+        }
+
         // Fetch dashboard statistics
         $totalKategori = Kategori::count();
         $totalAlat = Alat::count();

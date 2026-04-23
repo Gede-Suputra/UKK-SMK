@@ -32,4 +32,14 @@ class Pinjaman extends Model
     {
         return $this->hasMany(DetailPinjaman::class, 'id_pinjaman');
     }
+
+    public function disetujuiBy()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'disetujui_oleh');
+    }
+
+    public function diselesaikanBy()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'diselesaikan_oleh');
+    }
 }

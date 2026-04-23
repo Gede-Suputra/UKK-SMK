@@ -36,6 +36,26 @@
                 <input type="text" name="pesan" placeholder="Keterangan tambahan (opsional)"
                        class="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 focus:outline-none focus:border-indigo-500 text-sm">
             </div>
+            
+            <div>
+                <label class="block text-xs font-semibold text-zinc-500 mb-1">Disetujui Oleh (opsional)</label>
+                <select name="disetujui_oleh" class="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-sm">
+                    <option value="">— Tidak ada —</option>
+                    @foreach($users as $u)
+                        <option value="{{ $u->id }}" {{ (isset($pinjaman) && $pinjaman->disetujui_oleh == $u->id) ? 'selected' : '' }}>{{ $u->name }} {{ $u->role ? "({$u->role})" : '' }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-zinc-500 mb-1">Diselesaikan Oleh (opsional)</label>
+                <select name="diselesaikan_oleh" class="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-sm">
+                    <option value="">— Tidak ada —</option>
+                    @foreach($users as $u)
+                        <option value="{{ $u->id }}" {{ (isset($pinjaman) && $pinjaman->diselesaikan_oleh == $u->id) ? 'selected' : '' }}>{{ $u->name }} {{ $u->role ? "({$u->role})" : '' }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
 
         <!-- Detail Peminjaman -->

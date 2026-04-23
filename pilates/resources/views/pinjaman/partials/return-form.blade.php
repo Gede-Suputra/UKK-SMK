@@ -96,6 +96,14 @@
                                   class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-sm"
                                   placeholder="Kondisi, kerusakan, atau keterangan lainnya..."></textarea>
                     </div>
+
+                    <!-- Denda (opsional) -->
+                    <div class="mt-3">
+                        <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-2">Denda (Rp) — opsional</label>
+                        <input type="number" name="details[{{ $i }}][denda]" min="0" step="1" value="0"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-sm">
+                        <p class="text-xs text-zinc-400 mt-2">Isi manual jika ada biaya khusus untuk item ini (mis. kerusakan).</p>
+                    </div>
                 </div>
             @endforeach
         </div>
