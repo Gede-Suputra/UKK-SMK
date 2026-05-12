@@ -51,7 +51,7 @@ class PinjamanController extends Controller
     public function changeStatus(Request $request, Pinjaman $pinjaman)
     {
         $data = $request->validate([
-            'status' => 'required|string|in:pending,disetujui,dipinjam,selesai'
+            'status' => 'required|string|in:pending,disetujui,dipinjam,selesai,tolak'
         ]);
 
         // Prevent any status changes when already finished
@@ -254,7 +254,7 @@ class PinjamanController extends Controller
             'total_denda' => 'nullable|numeric|min:0',
             'pesan' => 'nullable|string',
             'diselesaikan_oleh' => 'nullable|exists:users,id',
-            'status' => 'required|string|in:pending,disetujui,dipinjam,selesai',
+            'status' => 'required|string|in:pending,disetujui,dipinjam,selesai,tolak',
             'details' => 'nullable|array',
             'details.*.id_alat' => 'required_with:details|exists:alats,id',
             'details.*.jumlah' => 'required_with:details|integer|min:1',

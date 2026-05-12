@@ -12,7 +12,7 @@
                    class="px-4 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 focus:outline-none" />
             <select name="status" onchange="this.form.submit()" class="px-4 py-2 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 focus:outline-none">
                 <option value="">Semua Status</option>
-                @foreach(['pending','disetujui','dipinjam','selesai'] as $s)
+                @foreach(['pending','disetujui','dipinjam','selesai','tolak'] as $s)
                     <option value="{{ $s }}" {{ (isset($status) && $status == $s) ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                 @endforeach
             </select>
@@ -78,6 +78,7 @@
                                     'disetujui' => 'bg-green-100 text-green-800',
                                     'dipinjam' => 'bg-sky-100 text-sky-800',
                                     'selesai' => 'bg-gray-100 text-gray-800',
+                                    'tolak' => 'bg-red-100 text-red-800',
                                 ][$status] ?? 'bg-zinc-100 text-zinc-800';
                             @endphp
                             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold {{ $badgeClasses }}">{{ ucfirst($status) }}</span>
@@ -85,7 +86,7 @@
                             <form method="POST" action="{{ route('pinjaman.changeStatus', $p) }}" class="inline-block status-form ml-3">
                                 @csrf
                                 <select name="status" class="px-3 py-1 rounded-lg text-sm" {{ $p->status === 'selesai' ? 'disabled' : '' }} onchange="if(this.disabled) return; if(confirm('Ubah status?')) this.form.submit();">
-                                    @foreach(['pending','disetujui','dipinjam','selesai'] as $ss)
+                                    @foreach(['pending','disetujui','dipinjam','selesai','tolak'] as $ss)
                                         <option value="{{ $ss }}" {{ $p->status === $ss ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$ss)) }}</option>
                                     @endforeach
                                 </select>

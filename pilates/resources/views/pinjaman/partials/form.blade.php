@@ -43,7 +43,7 @@
                     <select name="status" 
                             class="w-full px-3.5 py-2.5 text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400"
                             {{ (isset($pinjaman) && $pinjaman->status === 'selesai') ? 'disabled' : '' }}>
-                        @foreach(['pending','disetujui','dipinjam','selesai'] as $s)
+                        @foreach(['pending','disetujui','dipinjam','selesai','tolak'] as $s)
                             <option value="{{ $s }}" @if(old('status', $pinjaman->status ?? 'pending') == $s) selected @endif>
                                 {{ ucfirst($s) }}
                             </option>
